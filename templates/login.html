@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>login</title>
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .container {
+      width: 30%;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .switch-page {
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+  <body>
+    <h1>Login</h1>
+    <div id="loginForm" onsubmit="loginHandler(event)">
+      <form>
+        <label for="email">Enter your email : </label>
+        <input required type="email" id="email" /><br /><br />
+
+        <label for="password">Enter your password : </label>
+        <input required type="password" id="password" /><br /><br />
+        <span id="errorMessage" style="color: red"></span><br /><br />
+
+        <button type="submit">login</button>
+        <button onclick="toSignUp()">Don't have a account?</button>
+      </form>
+    </div>
+  </body>
+  <script>
+    // this function move to the signUp page when user click "Don't have a account" button
+    function toSignUp() {
+      window.location.href = "/";
+    }
+
+    window.onload = async function setToken() {
+      let token = localStorage.getItem("token");
+      if (token !== "") {
+        try {
+          let resObj = await fetch("http://localhost:5050/login/checkUser", {
+            method: "GET",
+            headers: {
+              Authorization: `${token}`,
+            },
+          }).then();
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      localStorage.setItem("token", "");
+    };
+
+    // this function is executed when user will give credentials
+    // here in the function user credentials is check and valid the user
+    async function loginHandler(event) {
+      event.preventDefault();
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+      var obj = {
+        email: email,
+        password: password,
+      };
+
+      // user's credentials is putted in the varialbles and the data is putted in the JSON object
+      try {
+        // through fetch api the request will be sent to the "verify" route
+        var response = await fetch("http://localhost:5050/login/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // obj JSON is sent in body by stringify the JSON
+          body: JSON.stringify(obj),
+        });
+
+        // checking the response status
+        if (response.status === 401) {
+          // response text is fetched , here is error handled
+          responseText = await response.text();
+          document.getElementById("errorMessage").innerHTML = responseText;
+          return;
+        }
+        responseText = await response.json();
+        // response is fetched here
+        localStorage.setItem("token", responseText.token);
+        // token is set in the local storage
+        if (obj.email === "admin@gmail.com") {
+          window.location.href = "/adminPage";
+          return;
+        }
+        toProfile();
+        // toProfile function is called
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    // in this function user will move to the profile page
+    function toProfile() {
+      window.location.href = "/profile";
+    }
+  </script>
+</html>

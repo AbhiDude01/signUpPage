@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+  </head>
+  <script>
+    window.onload = verifyUser;
+    async function verifyUser() {
+      const token = localStorage.getItem("token");
+      const responseBody = await fetch(
+        "http://localhost:5050/profile/verifyUser",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      ).then(async (response) => {
+        responseJSON = await response.json();
+        if (response.status === 401) {
+          window.location.href = "/login";
+        }
+        let imageUrl = responseJSON.imageUrl;
+        if (!imageUrl) {
+          document.getElementById("imageText").innerText =
+            "Image not uploaded by user";
+        }
+        var preview = document.getElementById("previewImage");
+        if (imageUrl) {
+          preview.src = imageUrl;
+        } else {
+          console.error("Image data is not the expected format.");
+        }
+        var email = responseJSON.email;
+        document.getElementById("displayEmail").innerText = email;
+        var username = responseJSON.name;
+        var password = responseJSON.password;
+        document.getElementById("name").value = username;
+        document.getElementById("password").value = password;
+        if (responseJSON.ActiveStatus) {
+          alert("User have been blocked");
+          var div = document.getElementById("displayEmail");
+          var textNode = document.createTextNode("(Blocked)");
+          div.appendChild(textNode);
+          var buttons = document.getElementsByTagName("button");
+          var textInputs = document.getElementsByTagName("input");
+          for (var i = 0; i < buttons.length; i++) {
+            if (buttons[i].textContent !== "log-out") {
+              buttons[i].disabled = true;
+            }
+          }
+          for (var i = 0; i < textInputs.length; i++) {
+            textInputs[i].disabled = true;
+          }
+        }
+      });
+    }
+    function logout() {
+      localStorage.setItem("token", "");
+      window.location.href = "/login";
+    }
+
+    function uploadImage() {
+      document.getElementById("imageText").innerText = "";
+      var input = document.getElementById("imageUpload");
+      var preview = document.getElementById("previewImage");
+      let responseObj;
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    async function editData() {
+      var name = document.getElementById("name").value;
+      var password = document.getElementById("password").value;
+      var imageData = document.getElementById("imageUpload");
+      let formData = new FormData();
+      formData.append("name", name);
+      formData.append("password", password);
+      formData.append("image", imageData.files[0]);
+      const token = localStorage.getItem("token");
+      let response = await fetch("http://localhost:5050/profile/upload", {
+        method: "POST",
+        headers: {
+          Authorization: token,
+        },
+        body: formData,
+      });
+      response = await response.text();
+      alert(response);
+    }
+  </script>
+  <body>
+    <h1>Profile Page</h1>
+    <div id="displayEmail"></div>
+
+    <form id="imageForm" enctype="multipart/form-data">
+      <br />
+      <label for="imageUpload">Choose an image</label>
+      <input type="file" id="imageUpload" name="image" accept="image/*" />
+      <br />
+      <span id="imageText" style="color: red"></span>
+      <img
+        id="previewImage"
+        style="max-width: 300px; max-height: 300px; margin-top: 10px"
+        alt="Preview"
+      />
+      <br />
+      <button type="button" onclick="uploadImage()">Upload</button>
+      <br /><br />
+    </form>
+    <label for="name">Enter name : </label>
+    <input type="text" id="name" /><br /><br />
+
+    <label for="password">Enter password : </label>
+    <input required type="text" id="password" name="password" /><br /><br />
+
+    <button onclick="editData()">Apply changes</button><br /><br /><br />
+
+    <button onclick="logout()">log-out</button>
+  </body>
+  <style>
+    button:disabled {
+      background-color: #dddddd; /* Change to grey */
+      color: #888888; /* Change text color */
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    #displayEmail {
+      border: 1px solid black;
+      width: 40%;
+      margin-left: 15%;
+      padding: 10px;
+    }
+    #imageForm {
+      margin-top: 20px;
+    }
+    #imageUpload {
+      margin-bottom: 15px;
+    }
+    #imageText {
+      color: red;
+    }
+    #previewImage {
+      max-width: 300px;
+      max-height: 300px;
+      margin-top: 10px;
+    }
+    #name,
+    #password {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: calc(100% - 20px);
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</html>

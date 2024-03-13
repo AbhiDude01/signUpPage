@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Page</title>
+  </head>
+
+  <body>
+    <h1>Admin Page</h1>
+    <button id="logoutButton" onclick="logout()">Log out</button>
+    <div id="myModal" class="modal">
+      <p></p>
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close" id="closeButton">&times;</span>
+          <h2>Edit User</h2>
+        </div>
+        <div class="modal-data">
+          <label for="name">Enter name : </label><br />
+          <input type="text" id="name" /><br /><br />
+
+          <label for="email">Enter email : </label><br />
+          <input type="email" id="email" /><br /><br />
+
+          <label for="password">Enter password : </label><br />
+          <input type="text" id="password" /><br /><br />
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="toggleCheckbox"
+              onchange="getValue(this)"
+            />
+            <span class="slider round"></span>
+          </label>
+          <span id="blockStatus">
+            <label for="toggleCheckbox" id="toggleLabel">Block Status: </label>
+            <span id="checkboxValue"></span>
+          </span>
+          <input type="text" id="docID" />
+
+          <br />
+
+          <br />
+          <button onclick="editData()">Apply Changes</button>&nbsp;&nbsp;
+          <button onclick="removeData()">Remove User</button>
+
+          <br />
+        </div>
+      </div>
+    </div>
+    <!-- showing number of users-->
+    <table>
+      <thead>
+        <tr>
+          <th>User Name</th>
+          <th>user email</th>
+          <th>Password</th>
+          <th>Block status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <!-- Modal division -->
+  </body>
+  <style>
+    #name,
+    #password,
+    #email {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #blockStatus {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .modal-data {
+      margin: 10px;
+      padding: 10px;
+      padding-left: 30%;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      /* margin-right: 30%; */
+      width: 60px;
+      height: 34px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: 0.4s;
+      transition: 0.4s;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: 0.4s;
+      transition: 0.4s;
+    }
+    input:checked + .slider {
+      background-color: #2196f3;
+    }
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196f3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 120%;
+      margin-top: -10%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal-content {
+      background-color: #ddd;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 45%;
+    }
+    .modal-header {
+      padding: 2px 16px;
+      background-color: #007bff;
+      color: white;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+    th,
+    td {
+      padding: 12px 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #ddd;
+    }
+    button {
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #logoutButton {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #logoutButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <script>
+    window.addEventListener("popstate", function () {
+      alert("location changed!");
+    });
+
+    async function removeData() {
+      const token = localStorage.getItem("token");
+      let docID = document.getElementById("docID").value;
+      let response = await fetch("http://localhost:5050/adminPage/deleteData", {
+        method: "POST",
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ docID: docID }),
+      });
+      response = await response.text();
+      alert(response);
+    }
+    async function editData() {
+      const token = localStorage.getItem("token");
+      let email = document.getElementById("email").value;
+      let name = document.getElementById("name").value;
+      let password = document.getElementById("password").value;
+      var checkbox = document.getElementById("toggleCheckbox");
+      let checkedStatus = checkbox.checked;
+      let docID = document.getElementById("docID").value;
+      let response = await fetch("http://localhost:5050/adminPage/editData", {
+        method: "POST",
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          docID: docID,
+          email: email,
+          name: name,
+          password: password,
+          checkedStatus: checkedStatus,
+        }),
+      });
+      response = await response.text();
+      alert(response);
+    }
+    window.onload = async function verifyUser() {
+      const token = localStorage.getItem("token");
+      const responseBody = await fetch(
+        "http://localhost:5050/adminPage/verify",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      ).then(async (response) => {
+        responseJSON = await response.json();
+        if (response.status === 401) {
+          window.location.href = "/login";
+        }
+        let data = responseJSON.data;
+        addRow(data);
+      });
+    };
+
+    async function addRow(users) {
+      var tableRow = document.getElementById("tableBody");
+      if (!Array.isArray(users)) {
+        console.error("Expected an array of users.");
+        return;
+      }
+
+      for (const user of users) {
+        var row = document.createElement("tr");
+
+        var userNameCell = document.createElement("td");
+        userNameCell.textContent = user.name;
+        row.appendChild(userNameCell);
+
+        var userEmailCell = document.createElement("td");
+        userEmailCell.textContent = user.email;
+        row.appendChild(userEmailCell);
+
+        var userPasswordCell = document.createElement("td");
+        userPasswordCell.textContent = user.password;
+        row.appendChild(userPasswordCell);
+
+        var blockStatusCell = document.createElement("td");
+        blockStatusCell.textContent = user.ActiveStatus ? "Blocked" : "Active";
+        row.appendChild(blockStatusCell);
+
+        var editButtonCell = document.createElement("td");
+        var editButton = document.createElement("button");
+        editButton.textContent = "edit";
+        editButton.addEventListener("click", function () {
+          var modal = document.getElementById("myModal");
+          modal.style.display = "block";
+
+          const token = localStorage.getItem("token");
+          const responseObj = fetch(
+            "http://localhost:5050/adminPage/populateData",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(user),
+            }
+          ).then(async (response) => {
+            let resObj = await response.json();
+            var email = resObj.email;
+            var name = resObj.name;
+            var password = resObj.password;
+            var activeStatus = resObj.ActiveStatus;
+            var docId = resObj._id;
+            document.getElementById("name").value = name;
+            document.getElementById("email").value = email;
+            document.getElementById("password").value = password;
+            document.getElementById("docID").value = docId;
+            document.getElementById("docID").style.visibility = "hidden";
+            var checkbox = document.getElementById("toggleCheckbox");
+            if (activeStatus) {
+              checkbox.checked = true;
+              document.getElementById("checkboxValue").innerText = "Blocked";
+            } else {
+              checkbox.checked = false;
+              document.getElementById("checkboxValue").innerText = "Active";
+            }
+          });
+        });
+        editButtonCell.appendChild(editButton);
+        row.appendChild(editButtonCell);
+
+        tableBody.appendChild(row);
+      }
+      var closeButton = document.getElementById("closeButton");
+      closeButton.addEventListener("click", function () {
+        var modal = document.getElementById("myModal");
+        modal.style.display = "none";
+        window.location.reload(true);
+      });
+    }
+    function logout() {
+      localStorage.setItem("token", "");
+      window.location.href = "/login";
+    }
+    function getValue(checkbox) {
+      var checkboxValue = document.getElementById("checkboxValue");
+      if (checkbox.checked) {
+        checkboxValue.innerText = "Blocked";
+      } else {
+        checkboxValue.innerText = "Active";
+      }
+    }
+  </script>
+</html>
